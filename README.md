@@ -16,7 +16,7 @@ docker-compose up --build
 ```
 
 ## Доступные сервисы
-- API: http://localhost:8000/docs
+- API: http://localhost:8000
 - Qdrant Dashboard: http://localhost:6333/dashboard
 - Prometheus: http://localhost:9090
 - Grafana: http://localhost:3000 (логин: admin, пароль: admin)
