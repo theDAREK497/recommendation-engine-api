@@ -43,7 +43,7 @@ services:
       qdrant:
         condition: service_healthy
       redis:
-        condition: service_started
+        condition: service_healthy
     environment:
       - PYTHONUNBUFFERED=1
       - QDRANT_HOST=qdrant

@@ -9,6 +9,11 @@ from prometheus_fastapi_instrumentator import Instrumentator
 
 app = FastAPI()
 
+# Инициализация Prometheus
+instrumentator = Instrumentator()
+instrumentator.instrument(app)
+instrumentator.expose(app)  # Добавляет endpoint /metrics
+
 # Инициализация Redis
 redis = Redis(host=os.getenv("REDIS_HOST", "redis"), port=int(os.getenv("REDIS_PORT", 6379)), decode_responses=True)
 
@@ -16,8 +21,6 @@ redis = Redis(host=os.getenv("REDIS_HOST", "redis"), port=int(os.getenv("REDIS_P
 async def startup_event():
     wait_for_qdrant()
     init_qdrant()
-    # Инструментируем приложение для сбора метрик Prometheus
-    Instrumentator().instrument(app).expose(app)
 
 @app.get("/recommend")
 async def recommend(
