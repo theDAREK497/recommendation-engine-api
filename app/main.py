@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from .qdrant_utils import init_qdrant, search_properties, model
+from app.qdrant_utils import init_qdrant, search_properties, model
 from app.healthcheck import wait_for_qdrant
 import os
 
