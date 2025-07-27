@@ -1,5 +1,5 @@
 from qdrant_client import QdrantClient
-from qdrant_client.models import Distance, VectorParams
+from qdrant_client.models import Distance, VectorParams, Filter
 from sentence_transformers import SentenceTransformer
 from dotenv import load_dotenv
 import json
@@ -44,13 +44,15 @@ def load_sample_data():
                 "id": 1, 
                 "title": "2-комн. квартира в Москве",
                 "description": "Просторная квартира в новом ЖК",
-                "price": 15000000
+                "price": 15000000,
+                "rooms": 2
             },
             {
                 "id": 2, 
                 "title": "3-комн. квартира в новостройке",
                 "description": "Сдача в 2024 году",
-                "price": 20000000
+                "price": 20000000,
+                "rooms": 3
             }
         ]
     
@@ -81,9 +83,10 @@ def load_sample_data():
     else:
         print("No properties loaded")
 
-def search_properties(vector, limit=3):
+def search_properties(vector, filter: Filter = None, limit: int = 3):
     return client.search(
         collection_name=COLLECTION_NAME,
         query_vector=vector,
+        query_filter=filter,
         limit=limit
     )

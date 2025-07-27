@@ -1,7 +1,6 @@
 import os
 import time
 import requests
-from qdrant_client import QdrantClient
 
 def wait_for_qdrant():
     host = os.getenv("QDRANT_HOST", "qdrant")
