@@ -32,39 +32,5 @@ pytest
 ```
 
 ## Автор
-Илья Гуриков
-```
-
-### 11. .gitignore
-```
-__pycache__/
-*.pyc
-.env
-.venv
-qdrant_storage/
-*.log
-```
-
-### Структура проекта:
-```
-.
-├── .github
-│   └── workflows
-│       └── test.yml
-├── app
-│   ├── __init__.py
-│   ├── healthcheck.py
-│   ├── main.py
-│   └── qdrant_utils.py
-├── data
-│   └── sample_data.json
-├── tests
-│   └── test_api.py
-├── .env
-├── .gitignore
-├── docker-compose.yml
-├── Dockerfile
-├── prometheus.yml
-├── README.md
-└── requirements.txt
+Гуриков Илья Олегович
 ```
