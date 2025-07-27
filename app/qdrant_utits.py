@@ -1,65 +1,89 @@
 from qdrant_client import QdrantClient
 from qdrant_client.models import Distance, VectorParams
 from sentence_transformers import SentenceTransformer
+from dotenv import load_dotenv
 import json
+import os
 
-QDRANT_URL = "http://qdrant:6333"
-COLLECTION_NAME = "real_estate"
-client = QdrantClient(host="qdrant", port=6333)
-model = SentenceTransformer('all-MiniLM-L6-v2')  # Модель для эмбеддингов
+load_dotenv()
+
+QDRANT_HOST = os.getenv("QDRANT_HOST", "qdrant")
+QDRANT_PORT = int(os.getenv("QDRANT_PORT", 6333))
+COLLECTION_NAME = os.getenv("COLLECTION_NAME", "real_estate")
+MODEL_NAME = os.getenv("MODEL_NAME", "all-MiniLM-L6-v2")
+
+client = QdrantClient(host=QDRANT_HOST, port=QDRANT_PORT)
+model = SentenceTransformer(MODEL_NAME)
 
 def init_qdrant():
-    # Создаем коллекцию если нужно
     collections = client.get_collections().collections
     collection_names = [c.name for c in collections]
     
     if COLLECTION_NAME not in collection_names:
         client.create_collection(
             collection_name=COLLECTION_NAME,
-            vectors_config=VectorParams(size=384, distance=Distance.COSINE),
+            vectors_config=VectorParams(size=model.get_sentence_embedding_dimension(), distance=Distance.COSINE),
         )
+        print(f"Collection '{COLLECTION_NAME}' created")
         load_sample_data()
     else:
         print(f"Collection '{COLLECTION_NAME}' already exists")
 
 def load_sample_data():
-    # Путь к файлу с данными
-    data_path = os.path.join(os.path.dirname(__file__), '..', 'data', 'sample_data.json')
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    data_path = os.path.join(current_dir, '..', 'data', 'sample_data.json')
     
     try:
         with open(data_path, 'r', encoding='utf-8') as f:
             properties = json.load(f)
+        print(f"Loaded data from {data_path}")
     except FileNotFoundError:
         print("Sample data file not found, using fallback data")
         properties = [
-            {"id": 1, "description": "2-комн. квартира в Москве", "price": 15000000},
-            {"id": 2, "description": "3-комн. квартира в новостройке", "price": 20000000}
+            {
+                "id": 1, 
+                "title": "2-комн. квартира в Москве",
+                "description": "Просторная квартира в новом ЖК",
+                "price": 15000000
+            },
+            {
+                "id": 2, 
+                "title": "3-комн. квартира в новостройке",
+                "description": "Сдача в 2024 году",
+                "price": 20000000
+            }
         ]
     
-    # Преобразуем описания в векторы
     points = []
     for prop in properties:
-        # Используем title + description для более точных эмбеддингов
-        text = f"{prop['title']} {prop['description']}"
+        title = prop.get("title", "")
+        description = prop.get("description", "")
+        text = f"{title} {description}".strip()
+        
+        if not text:
+            print(f"Skipping property {prop['id']} - no text for embedding")
+            continue
+            
         vector = model.encode(text).tolist()
         
         points.append({
             "id": prop["id"],
             "vector": vector,
-            "payload": prop  # сохраняем все данные в payload
+            "payload": prop
         })
     
-    # Добавляем в Qdrant
-    client.upsert(
-        collection_name=COLLECTION_NAME,
-        points=points
-    )
-    print(f"Loaded {len(points)} sample properties")
+    if points:
+        client.upsert(
+            collection_name=COLLECTION_NAME,
+            points=points
+        )
+        print(f"Loaded {len(points)} sample properties")
+    else:
+        print("No properties loaded")
 
 def search_properties(vector, limit=3):
-    search_result = client.search(
+    return client.search(
         collection_name=COLLECTION_NAME,
         query_vector=vector,
         limit=limit
     )
-    return [hit.payload for hit in search_result]
