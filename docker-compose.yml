@@ -7,12 +7,20 @@ services:
       - "6333:6333"
       - "6334:6334"
     volumes:
-      - ./qdrant_storage:/qdrant/storage
+      - qdrant_data:/qdrant/storage
     restart: unless-stopped
 
   recommender:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile
     ports:
       - "8000:8000"
     depends_on:
-      - qdrant
+      qdrant:
+        condition: service_healthy
+    environment:
+      - PYTHONUNBUFFERED=1
+
+volumes:
+  qdrant_data:
