@@ -1,7 +1,5 @@
 # Recommendation Engine API
 
-![CI](https://github.com/theDAREK497/recommendation-engine-api/actions/workflows/ci.yml/badge.svg)
-
 A compact backend showcase for **semantic real-estate recommendations**.
 
 The service combines vector similarity search with structured filters, Redis caching, containerized infrastructure and Prometheus metrics.
