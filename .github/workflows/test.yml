@@ -12,6 +12,7 @@ jobs:
     timeout-minutes: 15
 
     env:
+      PYTHONPATH: ${{ github.workspace }}
       QDRANT_HOST: localhost
       QDRANT_PORT: "6333"
       REDIS_HOST: localhost
@@ -48,4 +49,4 @@ jobs:
           pip install -r requirements.txt
 
       - name: Run tests
-        run: pytest -q
+        run: python -m pytest -q
